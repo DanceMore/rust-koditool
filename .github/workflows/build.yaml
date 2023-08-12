@@ -192,9 +192,20 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.get_release_id.outputs.id }}/assets?name=rust-koditool-macos
-        asset_path: rust-koditool-macos
-        asset_name: rust-koditool-macos
+        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.get_release_id.outputs.id }}/assets?name=rust-koditool-random_ep-macos
+        asset_path: rust-koditool-random_ep-macos
+        asset_name: rust-koditool-random_ep-macos
+        asset_content_type: application/octet-stream
+
+    - name: Attach binaries to release (tvmode)
+      id: attach_artifacts_tvmode
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.get_release_id.outputs.id }}/assets?name=rust-koditool-tvmode-macos
+        asset_path: rust-koditool-tvmode-macos
+        asset_name: rust-koditool-tvmode-macos
         asset_content_type: application/octet-stream
 
   build-windows:
