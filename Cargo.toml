@@ -18,9 +18,9 @@ rand = "0.8"
 
 # Define the binaries
 [[bin]]
-name = "random_episode"
-path = "src/main.rs"
+name = "kodi-random_ep"
+path = "src/random_ep.rs"
 
 [[bin]]
-name = "tvmode"
+name = "kodi-tvmode"
 path = "src/tvmode.rs"
