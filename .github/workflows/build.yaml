@@ -239,15 +239,20 @@ jobs:
       with:
         name: Binaries
         path: |
-          rust-koditool-windows-x86_64.exe
+          rust-koditool-random_ep-windows-x86_64.exe
+          rust-koditool-tvmode-windows-x86_64.exe
 
-    - name: Attach binaries to release
-      id: attach_artifacts
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.get_release_id.outputs.id }}/assets?name=rust-koditool-windows-x86_64.exe
-        asset_path: rust-koditool-windows-x86_64.exe
-        asset_name: rust-koditool-windows-x86_64.exe
-        asset_content_type: application/octet-stream
+     - name: Upload and attach binaries
+       id: attach_binaries
+       uses: actions/upload-release-asset@v1
+       env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+       with:
+         upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.get_release_id.outputs.id }}/assets
+         asset_path: |
+           rust-koditool-random_ep-windows-x86_64.exe
+           rust-koditool-tvmode-windows-x86_64.exe
+         asset_name: |
+           rust-koditool-random_ep-windows-x86_64.exe
+           rust-koditool-tvmode-windows-x86_64.exe
+         asset_content_type: application/octet-stream
