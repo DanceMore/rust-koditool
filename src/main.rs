@@ -29,9 +29,5 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Call the function to play the selected episode
     rpc_client.rpc_play(&selected_episode).await?;
 
-    // Make the RPC call to play the episode
-//    let play_response = rpc_call(&base_url, &auth, &play_episode_request_params).await?;
-//    println!("Play response: {:?}", play_response);
-
     Ok(())
 }

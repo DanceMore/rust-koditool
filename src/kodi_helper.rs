@@ -2,6 +2,7 @@ use serde_json::Value;
 use serde::{Deserialize};
 use reqwest::Client;
 use reqwest::header::{HeaderValue, HeaderMap};
+use reqwest::header::AUTHORIZATION;
 use std::error::Error;
 use std::fs;
 use rand::prelude::SliceRandom;
@@ -37,42 +38,19 @@ impl Authorization {
             value: auth_header_value,
         }
     }
-}
 
-pub async fn rpc_call(base_url: &str, auth: &Authorization, request_params: &Value) -> Result<Value, Box<dyn Error>> {
-    let client = Client::new();
-
-    let mut headers = HeaderMap::new();
-    headers.insert(reqwest::header::AUTHORIZATION, auth.value.clone());
-
-    let url = format!("{}/jsonrpc", base_url);
-
-    let response = client
-        .post(&url)
-        .headers(headers)
-        .body(reqwest::Body::from(request_params.to_string())) // Use reqwest::Body
-        .send()
-        .await?;
-
-    // Read response body as bytes and deserialize using serde_json
-    let response_bytes: Vec<u8> = response.bytes().await?.to_vec();
-    let response_str = String::from_utf8_lossy(&response_bytes);
-    let response_json: Result<Value, serde_json::Error> = serde_json::from_str(&response_str);
-
-    match response_json {
-        Ok(json) => Ok(json), // Return the JSON value
-        Err(err) => Err(Box::new(err)), // Wrap the error in a Box
+    pub fn auth_header_value(&self) -> &HeaderValue {
+        &self.value
     }
 }
 
-// Episode related RPC Calls
+// individual found Episode Struct
 pub struct SelectedEpisode {
     episode_id: u64,
     episode_file_path: String,
 }
 
-
-// Define a struct that holds configuration and authorization
+// Define a struct to be the basis of our RPC Client re-use
 pub struct RpcClient {
     pub config: Config,
     pub auth: Authorization,
@@ -99,7 +77,7 @@ impl RpcClient {
     	    "id": 1
         });
 
-        let tv_shows_response_json = rpc_call(&self.config.url, &self.auth, &tv_shows_request_params).await?;
+	let tv_shows_response_json = self.rpc_call(&tv_shows_request_params).await?;
 
         // Extract the "tvshows" array from the "result" field
         let tv_shows = tv_shows_response_json["result"]["tvshows"]
@@ -129,7 +107,7 @@ impl RpcClient {
     	    "id": 1
         });
 
-        let episodes_response_json = rpc_call(&self.config.url, &self.auth, &episodes_request_params).await?;
+        let episodes_response_json = self.rpc_call(&episodes_request_params).await?;
 
         //println!("Episodes Response: {:?}", episodes_response_json);
 
@@ -174,7 +152,7 @@ impl RpcClient {
         });
 
         // Make the RPC call
-        let episode_details_response_json = rpc_call(&self.config.url, &self.auth, &episode_details_request_params).await?;
+        let episode_details_response_json = self.rpc_call(&episode_details_request_params).await?;
 
         // Extract the episode file path from the response
         let episode_file_path = episode_details_response_json["result"]["episodedetails"]["file"]
@@ -192,6 +170,32 @@ impl RpcClient {
         Ok(selected_episode)
     }
 
+    pub async fn rpc_call(&self, request_params: &Value) -> Result<Value, Box<dyn Error>> {
+	let client = Client::new();
+
+        let mut headers = HeaderMap::new();
+        headers.insert(AUTHORIZATION, self.auth.auth_header_value().clone());
+
+        let url = format!("{}/jsonrpc", self.config.url);
+
+        let response = client
+            .post(&url)
+            .headers(headers)
+            .body(reqwest::Body::from(request_params.to_string())) // Use reqwest::Body
+            .send()
+            .await?;
+
+        // Read response body as bytes and deserialize using serde_json
+        let response_bytes: Vec<u8> = response.bytes().await?.to_vec();
+        let response_str = String::from_utf8_lossy(&response_bytes);
+        let response_json: Result<Value, serde_json::Error> = serde_json::from_str(&response_str);
+
+        match response_json {
+            Ok(json) => Ok(json), // Return the JSON value
+            Err(err) => Err(Box::new(err)), // Wrap the error in a Box
+        }
+    }
+
     // Method to make an RPC call for playing an episode
     pub async fn rpc_play(&self, selected_episode: &SelectedEpisode) -> Result<(), Box<dyn Error>> {
         let play_episode_request_params = json!({
@@ -206,10 +210,22 @@ impl RpcClient {
         });
 
         // Make the RPC call to play the episode
-        let _play_response = rpc_call(&self.config.url, &self.auth, &play_episode_request_params).await?;
+        let _play_response = self.rpc_call(&play_episode_request_params).await?;
         println!("Play response: {:?}", _play_response);
 
         Ok(())
     }
-}
 
+    pub async fn is_active(&self) -> Result<bool, Box<dyn Error>> {
+        let active_players_request_params = json!({
+            "jsonrpc": "2.0",
+            "method": "Player.GetActivePlayers",
+            "id": 1
+        });
+
+        let active_players_response_json = self.rpc_call(&active_players_request_params).await?;
+        let active_players = active_players_response_json["result"].as_array().unwrap_or(&vec![]).to_owned(); // Clone the array
+
+        Ok(!active_players.is_empty())
+    }
+}
