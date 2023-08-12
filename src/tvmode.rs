@@ -2,21 +2,16 @@ mod kodi_helper;
 use kodi_helper::Config;
 use kodi_helper::RpcClient;
 
-use serde_json::{json};
-
+use std::env;
+use std::collections::HashMap;
 use std::time::Duration;
-use std::process::Command;
 use std::io::{self, Write};
 use tokio::time::sleep;
 
-use std::collections::HashMap;
 use serde_yaml;
+use serde::Deserialize;
 
 use rand::prelude::SliceRandom;
-
-use serde::Deserialize; // Import the Deserialize trait
-
-use std::env;
 
 #[derive(Debug, Deserialize)]
 struct ShowMappings {
@@ -47,9 +42,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     let user = &args[1];
 
-    let show_mappings_content = std::fs::read_to_string("show_mapping.yml")?;
-    let show_mappings: ShowMappings = serde_yaml::from_str(&show_mappings_content)?;
-
+    let show_mappings = load_show_mappings()?;
     let user_shows = show_mappings.shows.get(user).ok_or_else(|| "User not found")?;
 
     if user_shows.is_empty() {
