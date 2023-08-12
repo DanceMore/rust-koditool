@@ -72,7 +72,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}/assets?name=rust-koditool-random_ep-linux-x86_64
+        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release.outputs.release_id }}/assets?name=rust-koditool-random_ep-linux-x86_64
         asset_path: rust-koditool-random_ep-linux-x86_64
         asset_name: rust-koditool-random_ep-linux-x86_64
         asset_content_type: application/octet-stream
@@ -83,7 +83,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}/assets?name=rust-koditool-tvmode-linux-x86_64
+        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release.outputs.release_id }}/assets?name=rust-koditool-tvmode-linux-x86_64
         asset_path: rust-koditool-tvmode-linux-x86_64
         asset_name: rust-koditool-tvmode-linux-x86_64
         asset_content_type: application/octet-stream
@@ -134,7 +134,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}/assets?name=rust-koditool-random_ep-macos
+        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release.outputs.release_id }}/assets?name=rust-koditool-random_ep-macos
         asset_path: rust-koditool-random_ep-macos
         asset_name: rust-koditool-random_ep-macos
         asset_content_type: application/octet-stream
@@ -145,7 +145,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}/assets?name=rust-koditool-tvmode-macos
+        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release.outputs.release_id }}/assets?name=rust-koditool-tvmode-macos
         asset_path: rust-koditool-tvmode-macos
         asset_name: rust-koditool-tvmode-macos
         asset_content_type: application/octet-stream
@@ -203,7 +203,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}/assets
+        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release.outputs.release_id }}/assets
         asset_path: |
           rust-koditool-random_ep-windows-x86_64.exe
           rust-koditool-tvmode-windows-x86_64.exe
@@ -259,7 +259,7 @@ jobs:
 #      env:
 #        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 #      with:
-#        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}/assets?name=rust-koditool-freebsd-x86_64
+#        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release.outputs.release_id }}/assets?name=rust-koditool-freebsd-x86_64
 #        asset_path: rust-koditool-freebsd-x86_64
 #        asset_name: rust-koditool-freebsd-x86_64
 #        asset_content_type: application/octet-stream
