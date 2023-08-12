@@ -6,35 +6,6 @@ on:
       - main
 
 jobs:
-  create-release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set release tag
-        id: set_tag
-        run: |
-          tag=$(git rev-parse --short=8 ${{ github.sha }})
-          echo "tag=${tag}" >> $GITHUB_STATE
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.tag }}
-          release_name: ${{ env.tag }}
-          body: ${{ steps.create_release.outputs.message }}
-          draft: false
-          prerelease: false
-
-      - name: Get release ID
-        id: get_release_id
-        run: echo "RELEASE_ID=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ steps.set_tag.outputs.tag }} | jq -r '.id')" >> $GITHUB_ENV
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   build-linux:
     runs-on: ubuntu-latest
     needs: create-release
@@ -91,48 +62,6 @@ jobs:
         cp target/x86_64-apple-darwin/release/kodi-random_ep ./rust-koditool-random_ep-macos
         cp target/x86_64-apple-darwin/release/kodi-tvmode ./rust-koditool-tvmode-macos
 
-    - name: Set release tag
-      id: set_tag
-      run: |
-        tag=$(git rev-parse --short=8 ${{ github.sha }})
-        echo "::set-output name=tag::${tag}"
-
-    - name: Get release ID
-      id: get_release_id
-      run: echo "::set-output name=id::$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ steps.set_tag.outputs.tag }} | jq -r '.id')"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Upload binaries
-      uses: actions/upload-artifact@v2
-      with:
-        name: Binaries
-        path: |
-          rust-koditool-random_ep-macos
-          rust-koditool-tvmode-macos
-
-    - name: Attach binaries to release
-      id: attach_artifacts
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release.outputs.release_id }}/assets?name=rust-koditool-random_ep-macos
-        asset_path: rust-koditool-random_ep-macos
-        asset_name: rust-koditool-random_ep-macos
-        asset_content_type: application/octet-stream
-
-    - name: Attach binaries to release (tvmode)
-      id: attach_artifacts_tvmode
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release.outputs.release_id }}/assets?name=rust-koditool-tvmode-macos
-        asset_path: rust-koditool-tvmode-macos
-        asset_name: rust-koditool-tvmode-macos
-        asset_content_type: application/octet-stream
-
   build-windows:
     runs-on: windows-latest
     needs: create-release
@@ -153,47 +82,28 @@ jobs:
         cp target/x86_64-pc-windows-msvc/release/kodi-random_ep.exe ./rust-koditool-random_ep-windows-x86_64.exe
         cp target/x86_64-pc-windows-msvc/release/kodi-tvmode.exe ./rust-koditool-tvmode-windows-x86_64.exe
 
-    - name: Set release tag
-      id: set_tag
-      shell: powershell
-      run: |
-        $tag = git rev-parse --short=8 ${{ github.sha }}
-        Write-Host "::set-output name=tag::$tag"
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [build-linux, build-macos, build-windows]  # Add more platform build job names here
 
-    - name: Get release ID
-      id: get_release_id
-      shell: powershell
-      run: |
-        $tag = '${{ steps.set_tag.outputs.tag }}'
-        $url = "https://api.github.com/repos/${{ github.repository }}/releases/tags/$tag"
-        $headers = @{ Authorization = "Bearer $env:GITHUB_TOKEN" }
-        $response = Invoke-RestMethod -Uri $url -Headers $headers -Method Get
-        Write-Output "::set-output name=id::$($response.id)"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Generate Changelog
+        run: echo "# Release Notes" > changelog.txt  # Replace this with your actual changelog content
 
-    - name: Upload binaries
-      uses: actions/upload-artifact@v2
-      with:
-        name: Binaries
-        path: |
-          rust-koditool-random_ep-windows-x86_64.exe
-          rust-koditool-tvmode-windows-x86_64.exe
-
-    - name: Upload and attach binaries
-      id: attach_binaries
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release.outputs.release_id }}/assets
-        asset_path: |
-          rust-koditool-random_ep-windows-x86_64.exe
-          rust-koditool-tvmode-windows-x86_64.exe
-        asset_name: |
-          rust-koditool-random_ep-windows-x86_64.exe
-          rust-koditool-tvmode-windows-x86_64.exe
-        asset_content_type: application/octet-stream
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            build-linux/rust-koditool-random_ep-linux-x86_64
+            build-linux/rust-koditool-tvmode-linux-x86_64
+            build-macos/rust-koditool-random_ep-macos
+            build-macos/rust-koditool-tvmode-macos
+            build-windows/rust-koditool-random_ep-windows-x86_64.exe
+            build-windows/rust-koditool-tvmode-windows-x86_64.exe
+            changelog.txt
+          body_path: changelog.txt
+          tag_name: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
 #  build-freebsd:
 #    runs-on: ubuntu-latest
