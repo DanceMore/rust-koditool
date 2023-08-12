@@ -15,7 +15,7 @@ jobs:
         id: set_tag
         run: |
           tag=$(git rev-parse --short=8 ${{ github.sha }})
-          echo "::set-output name=tag::${tag}"
+          echo "tag=${tag}" >> $GITHUB_STATE
 
       - name: Create Release
         id: create_release
@@ -28,6 +28,12 @@ jobs:
           body: ${{ steps.create_release.outputs.message }}
           draft: false
           prerelease: false
+
+      - name: Get release ID
+        id: get_release_id
+        run: echo "RELEASE_ID=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ steps.set_tag.outputs.tag }} | jq -r '.id')" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-linux:
     runs-on: ubuntu-latest
@@ -52,18 +58,6 @@ jobs:
         cp target/x86_64-unknown-linux-gnu/release/kodi-random_ep ./rust-koditool-random_ep-linux-x86_64
         cp target/x86_64-unknown-linux-gnu/release/kodi-tvmode ./rust-koditool-tvmode-linux-x86_64
 
-    - name: Set release tag
-      id: set_tag
-      run: |
-        tag=$(git rev-parse --short=8 ${{ github.sha }})
-        echo "::set-output name=tag::${tag}"
-
-    - name: Get release ID
-      id: get_release_id
-      run: echo "RELEASE_ID=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ steps.set_tag.outputs.tag }} | jq -r '.id')" >> $GITHUB_ENV
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Upload binaries
       uses: actions/upload-artifact@v2
       with:
@@ -78,7 +72,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.get_release_id.outputs.id }}/assets?name=rust-koditool-random_ep-linux-x86_64
+        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}/assets?name=rust-koditool-random_ep-linux-x86_64
         asset_path: rust-koditool-random_ep-linux-x86_64
         asset_name: rust-koditool-random_ep-linux-x86_64
         asset_content_type: application/octet-stream
@@ -89,7 +83,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.get_release_id.outputs.id }}/assets?name=rust-koditool-tvmode-linux-x86_64
+        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}/assets?name=rust-koditool-tvmode-linux-x86_64
         asset_path: rust-koditool-tvmode-linux-x86_64
         asset_name: rust-koditool-tvmode-linux-x86_64
         asset_content_type: application/octet-stream
@@ -140,7 +134,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.get_release_id.outputs.id }}/assets?name=rust-koditool-random_ep-macos
+        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}/assets?name=rust-koditool-random_ep-macos
         asset_path: rust-koditool-random_ep-macos
         asset_name: rust-koditool-random_ep-macos
         asset_content_type: application/octet-stream
@@ -151,7 +145,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.get_release_id.outputs.id }}/assets?name=rust-koditool-tvmode-macos
+        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}/assets?name=rust-koditool-tvmode-macos
         asset_path: rust-koditool-tvmode-macos
         asset_name: rust-koditool-tvmode-macos
         asset_content_type: application/octet-stream
@@ -209,7 +203,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.get_release_id.outputs.id }}/assets
+        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}/assets
         asset_path: |
           rust-koditool-random_ep-windows-x86_64.exe
           rust-koditool-tvmode-windows-x86_64.exe
@@ -265,7 +259,7 @@ jobs:
 #      env:
 #        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 #      with:
-#        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.get_release_id.outputs.id }}/assets?name=rust-koditool-freebsd-x86_64
+#        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}/assets?name=rust-koditool-freebsd-x86_64
 #        asset_path: rust-koditool-freebsd-x86_64
 #        asset_name: rust-koditool-freebsd-x86_64
 #        asset_content_type: application/octet-stream
