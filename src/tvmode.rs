@@ -8,43 +8,49 @@ use serde_json::{json, Value};
 
 use std::time::Duration;
 use std::process::Command;
+use std::io::{self, Write};
 use tokio::time::sleep;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Load configuration from YAML
     let config = Config::load("config.yml")?;
     let base_url = &config.url;
     let auth = Authorization::new(&config.username, &config.password);
 
+    let active_players_request_params = json!({
+	    "jsonrpc": "2.0",
+	    "method": "Player.GetActivePlayers",
+	    "id": 1
+    });
+
+    let mut i = 0;
+
     loop {
-        // Get active players
-        let active_players_request_params = json!({
-            "jsonrpc": "2.0",
-            "method": "Player.GetActivePlayers",
-            "id": 1
-        });
-
         let active_players_response_json = rpc_call(&base_url, &auth, &active_players_request_params).await?;
-        //let active_players = active_players_response_json["result"].as_array().unwrap_or(&vec![]);
 
-        // Store the active_players array as a named variable
-        //let active_players_array = active_players.clone();
+        // Clone the JSON array to avoid borrowing issues
+        let active_players = active_players_response_json["result"].as_array().unwrap_or(&vec![]).clone();
 
-        //if active_players.is_empty() {
-        //    println!("\n[!] no show playing, calling other Rust binary...\n");
+        if active_players.is_empty() {
+            println!("\n[!] no show playing, calling other Rust binary...\n");
 
-        //    // Call another Rust binary
-        //    let status = Command::new("./your_other_rust_binary")
-        //        .status()
-        //        .expect("Failed to execute binary");
+            // Call another Rust binary
+            let status = Command::new("./your_other_rust_binary")
+                .status()
+                .expect("Failed to execute binary");
 
-        //    if status.success() {
-        //        println!("Successfully executed other Rust binary");
-        //    } else {
-        //        println!("Other Rust binary execution failed");
-        //    }
-        //}
+            if status.success() {
+                println!("Successfully executed other Rust binary");
+            } else {
+                println!("Other Rust binary execution failed");
+            }
+        } else if i == 0 {
+            print!("."); // Print a dot
+	    io::stdout().flush()?; // Make sure the dot is immediately printed
+            i = 60; // Reset the counter
+        }
+
+        i -= 1;
 
         sleep(Duration::from_secs(1)).await;
     }
