@@ -58,35 +58,19 @@ jobs:
         cp target/x86_64-unknown-linux-gnu/release/kodi-random_ep ./rust-koditool-random_ep-linux-x86_64
         cp target/x86_64-unknown-linux-gnu/release/kodi-tvmode ./rust-koditool-tvmode-linux-x86_64
 
-    - name: Upload binaries
-      uses: actions/upload-artifact@v2
-      with:
-        name: Binaries
-        path: |
-          rust-koditool-random_ep-linux-x86_64
-          rust-koditool-tvmode-linux-x86_64
+     - name: Generate Changelog
+        run: echo "# Release Notes" > changelog.txt  # Replace this with your actual changelog content
 
-    - name: Attach binaries to release
-      id: attach_artifacts
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release.outputs.release_id }}/assets?name=rust-koditool-random_ep-linux-x86_64
-        asset_path: rust-koditool-random_ep-linux-x86_64
-        asset_name: rust-koditool-random_ep-linux-x86_64
-        asset_content_type: application/octet-stream
-
-    - name: Attach binaries to release (tvmode)
-      id: attach_artifacts_tvmode
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release.outputs.release_id }}/assets?name=rust-koditool-tvmode-linux-x86_64
-        asset_path: rust-koditool-tvmode-linux-x86_64
-        asset_name: rust-koditool-tvmode-linux-x86_64
-        asset_content_type: application/octet-stream
+     - name: Create Release
+       uses: softprops/action-gh-release@v1
+       if: startsWith(github.ref, 'refs/tags/')
+       with:
+         files: |
+           rust-koditool-random_ep-linux-x86_64
+           rust-koditool-tvmode-linux-x86_64
+         body_path: changelog.txt
+         tag_name: ${{ github.ref }}
+         token: ${{ secrets.GITHUB_TOKEN }}
 
   build-macos:
     runs-on: macOS-latest
