@@ -130,9 +130,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.get_release_id.outputs.id }}/assets?name=rust-koditool-linux-x86_64
-        asset_path: rust-koditool-linux-x86_64
-        asset_name: rust-koditool-linux-x86_64
+        upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.get_release_id.outputs.id }}/assets
+        asset_path: |
+          rust-kodi-random_ep-linux-x86_64
+          rust-kodi-tvmode-linux-x86_64
+        asset_name: ${{ eachFile }}
         asset_content_type: application/octet-stream
 
   build-macos:
