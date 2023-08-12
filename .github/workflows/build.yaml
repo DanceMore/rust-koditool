@@ -135,7 +135,7 @@ jobs:
         asset_name: rust-koditool-random_ep-linux-x86_64
         asset_content_type: application/octet-stream
 
-    - name: Attach binaries to release
+    - name: Attach binaries to release (tvmode)
       id: attach_artifacts_tvmode
       uses: actions/upload-release-asset@v1
       env:
