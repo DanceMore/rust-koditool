@@ -96,10 +96,10 @@ jobs:
 
     - name: Build for Linux x86-64
       run: |
-        rustup target add x86_64-unknown-linux-musl
-        cargo build --release --target x86_64-unknown-linux-musl
-        cp target/x86_64-unknown-linux-musl/release/kodi-random_ep ./rust-kodi-random_ep-linux-x86_64
-        cp target/x86_64-unknown-linux-musl/release/kodi-tvmode ./rust-kodi-tvmode-linux-x86_64
+        rustup target add x86_64-unknown-linux-gnu
+        cargo build --release --target x86_64-unknown-linux-gnu
+        cp target/x86_64-unknown-linux-gnu/release/kodi-random_ep ./rust-kodi-random_ep-linux-x86_64
+        cp target/x86_64-unknown-linux-gnu/release/kodi-tvmode ./rust-kodi-tvmode-linux-x86_64
 
     - name: Set release tag
       id: set_tag
