@@ -28,19 +28,6 @@ jobs:
         cp target/x86_64-unknown-linux-gnu/release/kodi-random_ep ./rust-koditool-random_ep-linux-x86_64
         cp target/x86_64-unknown-linux-gnu/release/kodi-tvmode ./rust-koditool-tvmode-linux-x86_64
 
-    - name: Generate Changelog
-      run: echo "# Release Notes" > changelog.txt  # Replace this with your actual changelog content
-
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          rust-koditool-random_ep-linux-x86_64
-          rust-koditool-tvmode-linux-x86_64
-        body_path: changelog.txt
-        tag_name: ${{ github.ref }}
-        token: ${{ secrets.GITHUB_TOKEN }}
-
   build-macos:
     runs-on: macOS-latest
 
@@ -87,6 +74,12 @@ jobs:
       - name: Generate Changelog
         run: echo "# Release Notes" > changelog.txt  # Replace this with your actual changelog content
 
+      - name: Set release tag
+        id: set_tag
+        run: |
+          tag=$(git rev-parse --short=8 ${{ github.sha }})
+          echo "tag=${tag}" >> $GITHUB_STATE
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
@@ -99,7 +92,7 @@ jobs:
             build-windows/rust-koditool-tvmode-windows-x86_64.exe
             changelog.txt
           body_path: changelog.txt
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ steps.set_tag.outputs.tag }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
 #  build-freebsd:
