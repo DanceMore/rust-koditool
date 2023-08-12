@@ -167,8 +167,8 @@ jobs:
       run: |
         cargo build --release --target x86_64-pc-windows-msvc
         ls target/x86_64-pc-windows-msvc/release/
-        cp target/x86_64-pc-windows-msvc/release/kodi-random_ep.exe ./rust-koditool-random_ep-x86_64.exe
-        cp target/x86_64-pc-windows-msvc/release/kodi-tvmode.exe ./rust-koditool-tvmode-x86_64.exe
+        cp target/x86_64-pc-windows-msvc/release/kodi-random_ep.exe ./rust-koditool-random_ep-windows-x86_64.exe
+        cp target/x86_64-pc-windows-msvc/release/kodi-tvmode.exe ./rust-koditool-tvmode-windows-x86_64.exe
 
     - name: Set release tag
       id: set_tag
