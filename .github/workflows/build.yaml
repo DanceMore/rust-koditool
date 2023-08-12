@@ -101,9 +101,10 @@ jobs:
 
     - name: Set release tag
       id: set_tag
+      shell: powershell
       run: |
-        tag=$(git rev-parse --short=8 ${{ github.sha }})
-        echo "tag=${tag}" >> $GITHUB_ENV
+        $tag = git rev-parse --short=8 $env:GITHUB_SHA
+        Set-Content -Path $env:GITHUB_ENV -Value "tag=$tag"
 
     - name: Build for Windows x86-64
       run: |
