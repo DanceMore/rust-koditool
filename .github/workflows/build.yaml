@@ -52,6 +52,7 @@ jobs:
       uses: taiki-e/upload-rust-binary-action@v1
       with:
         bin: rust-koditool-random_ep-linux-x86_64,rust-koditool-tvmode-linux-x86_64
+        ref: ${{ env.set_tag }}
         token: ${{ secrets.GITHUB_TOKEN }}
 
   build-macos:
@@ -72,6 +73,7 @@ jobs:
       uses: taiki-e/upload-rust-binary-action@v1
       with:
         bin: rust-koditool-random_ep-macos,rust-koditool-tvmode-macos
+        ref: ${{ env.set_tag }}
         token: ${{ secrets.GITHUB_TOKEN }}
 
   build-windows:
@@ -92,6 +94,7 @@ jobs:
       uses: taiki-e/upload-rust-binary-action@v1
       with:
         bin: rust-koditool-random_ep-windows-x86_64.exe,rust-koditool-tvmode-windows-x86_64.exe
+        ref: ${{ env.set_tag }}
         token: ${{ secrets.GITHUB_TOKEN }}
 
 
