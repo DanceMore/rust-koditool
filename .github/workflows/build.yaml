@@ -71,6 +71,9 @@ jobs:
     needs: [build-linux, build-macos, build-windows]  # Add more platform build job names here
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Generate Changelog
         run: echo "# Release Notes" > changelog.txt  # Replace this with your actual changelog content
 
