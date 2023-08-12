@@ -59,11 +59,10 @@ jobs:
         cp target/x86_64-unknown-linux-gnu/release/kodi-tvmode ./rust-koditool-tvmode-linux-x86_64
 
      - name: Generate Changelog
-        run: echo "# Release Notes" > changelog.txt  # Replace this with your actual changelog content
+       run: echo "# Release Notes" > changelog.txt  # Replace this with your actual changelog content
 
      - name: Create Release
        uses: softprops/action-gh-release@v1
-       if: startsWith(github.ref, 'refs/tags/')
        with:
          files: |
            rust-koditool-random_ep-linux-x86_64
