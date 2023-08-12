@@ -81,7 +81,7 @@ jobs:
         id: set_tag
         run: |
           tag=$(git rev-parse --short=8 ${{ github.sha }})
-          echo "tag=${tag}" >> $GITHUB_STATE
+          echo "tag=${tag}" >> $GITHUB_ENV
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -95,7 +95,7 @@ jobs:
             build-windows/rust-koditool-tvmode-windows-x86_64.exe
             changelog.txt
           body_path: changelog.txt
-          tag_name: ${{ steps.set_tag.outputs.tag }}
+          tag_name: ${{ env.tag }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
 #  build-freebsd:
