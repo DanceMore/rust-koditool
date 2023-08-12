@@ -87,12 +87,12 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            build-linux/rust-koditool-random_ep-linux-x86_64
-            build-linux/rust-koditool-tvmode-linux-x86_64
-            build-macos/rust-koditool-random_ep-macos
-            build-macos/rust-koditool-tvmode-macos
-            build-windows/rust-koditool-random_ep-windows-x86_64.exe
-            build-windows/rust-koditool-tvmode-windows-x86_64.exe
+            rust-koditool-random_ep-linux-x86_64
+            rust-koditool-tvmode-linux-x86_64
+            rust-koditool-random_ep-macos
+            rust-koditool-tvmode-macos
+            rust-koditool-random_ep-windows-x86_64.exe
+            rust-koditool-tvmode-windows-x86_64.exe
             changelog.txt
           body_path: changelog.txt
           tag_name: ${{ env.tag }}
