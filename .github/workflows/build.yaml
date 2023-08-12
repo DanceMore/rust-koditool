@@ -6,69 +6,8 @@ on:
       - main
 
 jobs:
-  build-linux:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Setup Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-
-    - name: Install OpenSSL Development Packages
-      run: sudo apt-get update && sudo apt-get install -y libssl-dev
-
-    - name: Build for Linux x86-64
-      run: |
-        rustup target add x86_64-unknown-linux-gnu
-        cargo build --release --target x86_64-unknown-linux-gnu
-        cp target/x86_64-unknown-linux-gnu/release/kodi-random_ep ./rust-koditool-random_ep-linux-x86_64
-        cp target/x86_64-unknown-linux-gnu/release/kodi-tvmode ./rust-koditool-tvmode-linux-x86_64
-
-  build-macos:
-    runs-on: macOS-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Setup Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-
-    - name: Build for macOS
-      run: |
-        rustup target add x86_64-apple-darwin
-        cargo build --release --target x86_64-apple-darwin
-        cp target/x86_64-apple-darwin/release/kodi-random_ep ./rust-koditool-random_ep-macos
-        cp target/x86_64-apple-darwin/release/kodi-tvmode ./rust-koditool-tvmode-macos
-
-  build-windows:
-    runs-on: windows-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Setup Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable-msvc
-
-    - name: Build for Windows x86-64
-      run: |
-        cargo build --release --target x86_64-pc-windows-msvc
-        ls target/x86_64-pc-windows-msvc/release/
-        cp target/x86_64-pc-windows-msvc/release/kodi-random_ep.exe ./rust-koditool-random_ep-windows-x86_64.exe
-        cp target/x86_64-pc-windows-msvc/release/kodi-tvmode.exe ./rust-koditool-tvmode-windows-x86_64.exe
-
   create-release:
     runs-on: ubuntu-latest
-    needs: [build-linux, build-macos, build-windows]  # Add more platform build job names here
 
     steps:
       - name: Checkout code
@@ -87,16 +26,75 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            rust-koditool-random_ep-linux-x86_64
-            rust-koditool-tvmode-linux-x86_64
-            rust-koditool-random_ep-macos
-            rust-koditool-tvmode-macos
-            rust-koditool-random_ep-windows-x86_64.exe
-            rust-koditool-tvmode-windows-x86_64.exe
             changelog.txt
           body_path: changelog.txt
           tag_name: ${{ env.tag }}
           token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-linux:
+    runs-on: ubuntu-latest
+    needs: create-release
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+
+    - name: Install OpenSSL Development Packages
+      run: sudo apt-get update && sudo apt-get install -y libssl-dev
+
+    - name: Build and upload Linux artifacts
+      id: upload_linux
+      uses: taiki-e/upload-rust-binary-action@v1
+      with:
+        bin: rust-koditool-random_ep-linux-x86_64,rust-koditool-tvmode-linux-x86_64
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-macos:
+    runs-on: macOS-latest
+    needs: create-release
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+
+    - name: Build and upload macOS artifacts
+      id: upload_macos
+      uses: taiki-e/upload-rust-binary-action@v1
+      with:
+        bin: rust-koditool-random_ep-macos,rust-koditool-tvmode-macos
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-windows:
+    runs-on: windows-latest
+    needs: create-release
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable-msvc
+
+    - name: Build and upload Windows artifacts
+      id: upload_windows
+      uses: taiki-e/upload-rust-binary-action@v1
+      with:
+        bin: rust-koditool-random_ep-windows-x86_64.exe,rust-koditool-tvmode-windows-x86_64.exe
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+
 
 #  build-freebsd:
 #    runs-on: ubuntu-latest
