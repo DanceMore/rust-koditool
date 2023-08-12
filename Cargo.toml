@@ -15,3 +15,12 @@ tokio = { version = "1", features = ["full"] }
 yaml-rust = "0.4"
 base64 = "0.13"
 rand = "0.8"
+
+# Define the binaries
+[[bin]]
+name = "random_episode"
+path = "src/main.rs"
+
+[[bin]]
+name = "tvmode"
+path = "src/tvmode.rs"
