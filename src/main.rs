@@ -67,24 +67,24 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let episodes_response_json = rpc_call(&base_url, &auth, &episodes_request_params).await?;
 
-    println!("Episodes Response: {:?}", episodes_response_json);
+    //println!("Episodes Response: {:?}", episodes_response_json);
 
     // Extract the "episodes" array from the "result" field
     let episodes = episodes_response_json["result"]["episodes"]
 	    .as_array()
 	    .ok_or("Episodes not found in response")?;
 
-    for episode in episodes {
-	    let episode_id = episode["episodeid"].as_u64().ok_or("Episode ID not found")?;
-	    let episode_title = episode["title"].as_str().ok_or("Episode title not found")?;
-	    let season_number = episode["season"].as_u64().ok_or("Season number not found")?;
-	    let episode_number = episode["episode"].as_u64().ok_or("Episode number not found")?;
+    //for episode in episodes {
+    //        let episode_id = episode["episodeid"].as_u64().ok_or("Episode ID not found")?;
+    //        let episode_title = episode["title"].as_str().ok_or("Episode title not found")?;
+    //        let season_number = episode["season"].as_u64().ok_or("Season number not found")?;
+    //        let episode_number = episode["episode"].as_u64().ok_or("Episode number not found")?;
 
-	    println!(
-		    "Episode ID: {}, Title: {}, Season: {}, Episode: {}",
-		    episode_id, episode_title, season_number, episode_number
-		    );
-    }
+    //        println!(
+    //    	    "Episode ID: {}, Title: {}, Season: {}, Episode: {}",
+    //    	    episode_id, episode_title, season_number, episode_number
+    //    	    );
+    //}
 
     // Extract the episode IDs from the episodes array
     let episode_ids: Vec<u64> = episodes
