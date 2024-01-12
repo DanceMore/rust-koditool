@@ -1,3 +1,7 @@
+# DEPRECATED
+# merged into https://github.com/DanceMore/dancemore_mediatools
+
+
 # rust-koditool
 
 born from the ashes of a Ruby-based tool that was using a [10 year out-of-date library](https://github.com/dr-impossible/xbmc-client).
